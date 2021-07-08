@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:async';
 import 'package:agenda_de_contatos/helpers/contact_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -24,26 +24,29 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Contatos"),
-        backgroundColor: Colors.red,
-        centerTitle: true,
-      ),
-      backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showContactPage();
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.red,
-      ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(10),
-        itemCount: contacts.length,
-        itemBuilder: (context, index) {
-          return _contactCard(context, index);
-        },
+    return WillPopScope(
+      onWillPop: _requestPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Contatos"),
+          backgroundColor: Colors.red,
+          centerTitle: true,
+        ),
+        backgroundColor: Colors.white,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _showContactPage();
+          },
+          child: Icon(Icons.add),
+          backgroundColor: Colors.red,
+        ),
+        body: ListView.builder(
+          padding: EdgeInsets.all(10),
+          itemCount: contacts.length,
+          itemBuilder: (context, index) {
+            return _contactCard(context, index);
+          },
+        ),
       ),
     );
   }
@@ -121,5 +124,39 @@ class _HomePageState extends State<HomePage> {
         contacts = list;
       });
     });
+  }
+}
+
+Future<bool> _requestPop() {
+  bool _userEdited = false;
+
+  if (_userEdited) {
+    var context;
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Descartar alterações?"),
+            content: Text("Se sair, as alterações serão perdidas."),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Cancelar"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              FlatButton(
+                child: Text("Sim"),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+    return Future.value(false);
+  } else {
+    return Future.value(true);
   }
 }
